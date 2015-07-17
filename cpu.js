@@ -7,7 +7,7 @@ function CPU(memory) {
 	//Initialize Memory
 	this.memory = new Uint8Array(memory);
 	for(x = 0; x < 65536; x++) {
-		this.memory[x] = 0x00;
+		this.memory[x] = 0xFF;
 	}
 
 	//Initialize flags.
@@ -24,15 +24,27 @@ function CPU(memory) {
 	//Initialize Stack Pointer
 	this.SP = 0xFD;
 
-	//How many cycles to wait before the instruction has been executed.
+	//How many cycles do we have to wait before executing the next instruction.
 	this.wait = 0;
 
 
+  //Clock the cpu.
 	this.execute = function() {
+
+    /* this.wait being equal to 0 means that the CPU is currently
+       available for fetching a new instruction.
+       Instructions on the 6502 can take anywhere from 2-7 cycles to
+       execute, depending on the addressing mode.
+       If the previous instruction is still being processed (i.e, this.wait > 0),
+       we just decrease the cycle counter (this.wait) and wait for the next CPU clock.
+       */
+
 		if(this.wait === 0) {
 			switch(this.memory[this.PC]) {
 
-				//LDA
+				/* |    |||  ||||
+           |    |  | |
+           |___ |||  |   */
 
 				case 0xA9:
 					this.Z = false;
@@ -623,12 +635,12 @@ function CPU(memory) {
 
 					var newStatus = this.memory[0x0100 + this.SP];
 
-					this.C = newStatus & 0 b00000001 === 1 ? true : false;
-					this.Z = newStatus & 0 b00000010 === 2 ? true : false;
-					this.I = newStatus & 0 b00000100 === 4 ? true : false;
-					this.B = newStatus & 0 b00010000 === 16 ? true : false;
-					this.V = newStatus & 0 b01000000 === 64 ? true : false;
-					this.N = newStatus & 0 b10000000 === 128 ? true : false;
+					this.C = newStatus & 0b00000001 === 1 ? true : false;
+					this.Z = newStatus & 0b00000010 === 2 ? true : false;
+					this.I = newStatus & 0b00000100 === 4 ? true : false;
+					this.B = newStatus & 0b00010000 === 16 ? true : false;
+					this.V = newStatus & 0b01000000 === 64 ? true : false;
+					this.N = newStatus & 0b10000000 === 128 ? true : false;
 
 					if(this.SP < 0xFF) this.SP++;
 					else this.SP = 0x00;
@@ -1066,7 +1078,7 @@ function CPU(memory) {
 					if(ANDed === 0) this.Z = true;
 
 					this.N = this.memory[this.memory[this.PC + 1]] >> 7 === 1 ? true : false;
-					this.V = this.memory[this.memory[this.PC + 1]] & 0 b01000000 === 64 ? true : false;
+					this.V = this.memory[this.memory[this.PC + 1]] & 0b01000000 === 64 ? true : false;
 
 					this.PC += 2;
 					this.wait = 2;
@@ -1087,7 +1099,7 @@ function CPU(memory) {
 					if(ANDed === 0) this.Z = true;
 
 					this.N = value >> 7 === 1 ? true : false;
-					this.V = value & 0 b01000000 === 64 ? true : false;
+					this.V = value & 0b01000000 === 64 ? true : false;
 
 					this.PC += 2;
 					this.wait = 3;
@@ -1962,7 +1974,7 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					this.C = this.A & 0 b00000001 === 1 ? true : false;
+					this.C = this.A & 0b00000001 === 1 ? true : false;
 					this.A = this.A >> 1;
 
 					if(this.A >> 7 === 1) this.N = true;
@@ -1978,7 +1990,7 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					this.C = this.memory[this.memory[this.PC + 1]] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[this.memory[this.PC + 1]] & 0b00000001 === 1 ? true : false;
 					this.memory[this.memory[this.PC + 1]] = this.memory[this.memory[this.PC + 1]] >> 1;
 
 					if(this.memory[this.memory[this.PC + 1]] >> 7 === 1) this.N = true;
@@ -1994,7 +2006,7 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					this.C = this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] & 0b00000001 === 1 ? true : false;
 					this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] = this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] >> 1;
 
 					if(this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] >> 7 === 1) this.N = true;
@@ -2014,7 +2026,7 @@ function CPU(memory) {
 					var bottom = this.memory[this.memory[this.PC + 1]];
 					var address = parseInt(top.toString(16) + bottom.toString(16), 16);
 
-					this.C = this.memory[address] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[address] & 0b00000001 === 1 ? true : false;
 					this.memory[address] = this.memory[address] >> 1;
 
 					if(this.memory[address] >> 7 === 1) this.N = true;
@@ -2034,7 +2046,7 @@ function CPU(memory) {
 					var bottom = this.memory[this.memory[this.PC + 1]];
 					var address = parseInt(top.toString(16) + bottom.toString(16), 16);
 
-					this.C = this.memory[address + this.X] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[address + this.X] & 0b00000001 === 1 ? true : false;
 					this.memory[address + this.X] = this.memory[address + this.X] >> 1;
 
 					if(this.memory[address + this.X] >> 7 === 1) this.N = true;
@@ -2152,9 +2164,9 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					var carry = this.C ? 0 b10000000 : 0;
+					var carry = this.C ? 0b10000000 : 0;
 
-					this.C = this.A & 0 b00000001 === 1 ? true : false;
+					this.C = this.A & 0b00000001 === 1 ? true : false;
 					this.A = this.A >> 1 | carry;
 
 					if(this.A >> 7 === 1) this.N = true;
@@ -2170,9 +2182,9 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					var carry = this.C ? 0 b10000000 : 0;
+					var carry = this.C ? 0b10000000 : 0;
 
-					this.C = this.memory[this.memory[this.PC + 1]] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[this.memory[this.PC + 1]] & 0b00000001 === 1 ? true : false;
 					this.memory[this.memory[this.PC + 1]] = this.memory[this.memory[this.PC + 1]] >> 1 | carry;
 
 					if(this.memory[this.memory[this.PC + 1]] >> 7 === 1) this.N = true;
@@ -2188,9 +2200,9 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					var carry = this.C ? 0 b10000000 : 0;
+					var carry = this.C ? 0b10000000 : 0;
 
-					this.C = this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] & 0b00000001 === 1 ? true : false;
 					this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] = this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] >> 1 | carry;
 
 					if(this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF] >> 7 === 1) this.N = true;
@@ -2206,13 +2218,13 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					var carry = this.C ? 0 b10000000 : 0;
+					var carry = this.C ? 0b10000000 : 0;
 
 					var top = this.memory[this.memory[this.PC + 1] + 1];
 					var bottom = this.memory[this.memory[this.PC + 1]];
 					var address = parseInt(top.toString(16) + bottom.toString(16), 16);
 
-					this.C = this.memory[address] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[address] & 0b00000001 === 1 ? true : false;
 					this.memory[address] = this.memory[address] >> 1 | carry;
 
 					if(this.memory[address] >> 7 === 1) this.N = true;
@@ -2228,13 +2240,13 @@ function CPU(memory) {
 					this.Z = false;
 					this.N = false;
 
-					var carry = this.C ? 0 b10000000 : 0;
+					var carry = this.C ? 0b10000000 : 0;
 
 					var top = this.memory[this.memory[this.PC + 1] + 1];
 					var bottom = this.memory[this.memory[this.PC + 1]];
 					var address = parseInt(top.toString(16) + bottom.toString(16), 16);
 
-					this.C = this.memory[address + this.X] & 0 b00000001 === 1 ? true : false;
+					this.C = this.memory[address + this.X] & 0b00000001 === 1 ? true : false;
 					this.memory[address + this.X] = this.memory[address + this.X] >> 1 | carry;
 
 					if(this.memory[address + this.X] >> 7 === 1) this.N = true;
@@ -2251,7 +2263,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(!this.C) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2263,7 +2275,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(this.C) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2275,7 +2287,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(this.Z) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2287,7 +2299,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(this.N) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2299,7 +2311,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(!this.Z) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2311,7 +2323,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(!this.N) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2323,7 +2335,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(!this.V) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2335,7 +2347,7 @@ function CPU(memory) {
 					this.PC += 2;
 					if(this.V) {
 						var disp = this.memory[this.PC + 1] >= 0x80 ? this.memory[this.PC + 1] - 256 : this.memory[this.PC + 1];
-						this.wait = this.PC & 0 b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
+						this.wait = this.PC & 0b0000000011111111 + this.memory[this.PC + 1] > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2409,7 +2421,7 @@ function CPU(memory) {
 					var status = C + Z + I + D + B + not + V + N;
 
 					this.memory[0x0100 + this.SP] = this.PC >> 8;
-					this.memory[(0x0100 + this.SP - 1) & 0xFF] = this.PC & 0 b0000000011111111;
+					this.memory[(0x0100 + this.SP - 1) & 0xFF] = this.PC & 0b0000000011111111;
 					this.memory[(0x0100 + this.SP - 2) & 0xFF] = status;
 
 					this.I = this.B = true;
@@ -2424,22 +2436,22 @@ function CPU(memory) {
 
 					//NOP
 
-				case 0xEA
-				this.PC++;
-				this.wait = 1
+				case 0xEA:
+				  this.PC++;
+				  this.wait = 1
 				break;
 
 				//RTI
-        
-				case 0x40:
-					var newStatus = this.memory[0x0100 + this.SP + 1];
 
-					this.C = newStatus & 0 b00000001 === 1 ? true : false;
-					this.Z = newStatus & 0 b00000010 === 2 ? true : false;
-					this.I = newStatus & 0 b00000100 === 4 ? true : false;
-					this.B = newStatus & 0 b00010000 === 16 ? true : false;
-					this.V = newStatus & 0 b01000000 === 64 ? true : false;
-					this.N = newStatus & 0 b10000000 === 128 ? true : false;
+				case 0x40:
+				  var newStatus = this.memory[0x0100 + this.SP + 1];
+
+					this.C = newStatus & 0b00000001 === 1 ? true : false;
+					this.Z = newStatus & 0b00000010 === 2 ? true : false;
+					this.I = newStatus & 0b00000100 === 4 ? true : false;
+					this.B = newStatus & 0b00010000 === 16 ? true : false;
+					this.V = newStatus & 0b01000000 === 64 ? true : false;
+					this.N = newStatus & 0b10000000 === 128 ? true : false;
 
 					this.PC = this.memory[0x0100 + this.SP + 3] << 8 + this.memory[0x0100 + this.SP + 2];
 
