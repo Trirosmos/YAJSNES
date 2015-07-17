@@ -473,6 +473,7 @@ function CPU(memory) {
 					break;
 
 					//TAX
+
 				case 0xAA:
 					this.Z = false;
 					this.N = false;
@@ -484,6 +485,8 @@ function CPU(memory) {
 
 					this.PC++;
 					this.wait = 1;
+
+          break;
 
 					//TAY
 
@@ -499,6 +502,8 @@ function CPU(memory) {
 					this.PC++;
 					this.wait = 1;
 
+          break;
+
 					//TXA
 
 				case 0x8A:
@@ -512,6 +517,8 @@ function CPU(memory) {
 
 					this.PC++;
 					this.wait = 1;
+
+          break;
 
 					//TYA
 
@@ -527,7 +534,10 @@ function CPU(memory) {
 					this.PC++;
 					this.wait = 1;
 
+          break;
+
 					//TSX
+
 				case 0xBA:
 					this.Z = false;
 					this.N = false;
@@ -543,6 +553,7 @@ function CPU(memory) {
 					break;
 
 					//TXS
+
 				case 0x9A:
 					this.SP = this.X;
 
@@ -552,6 +563,7 @@ function CPU(memory) {
 					break;
 
 					//PHA
+
 				case 0x48:
 					this.memory[0x0100 + this.SP] = this.A;
 					if(this.SP > 0) this.SP--;
@@ -563,6 +575,7 @@ function CPU(memory) {
 					break;
 
 					//PHP
+
 				case 0x08:
 					this.B = true;
 
@@ -583,7 +596,10 @@ function CPU(memory) {
 					this.PC++;
 					this.wait = 2;
 
+          break;
+
 					//PLA
+
 				case 0x68:
 					this.Z = false;
 					this.N = false;
@@ -599,7 +615,10 @@ function CPU(memory) {
 					this.PC++;
 					this.wait = 3;
 
+          break;
+
 					//PLP
+
 				case 0x28:
 
 					var newStatus = this.memory[0x0100 + this.SP];
@@ -898,6 +917,7 @@ function CPU(memory) {
 					break;
 
 					//OR
+
 				case 0x09:
 					this.Z = false;
 					this.N = false;
@@ -1036,6 +1056,7 @@ function CPU(memory) {
 					break;
 
 					//BIT
+
 				case 0x24:
 					this.Z = false;
 					this.V = false;
@@ -1271,6 +1292,7 @@ function CPU(memory) {
 					break;
 
 					//SBC
+
 				case 0xE9:
 					this.Z = false;
 					this.N = false;
@@ -1467,6 +1489,7 @@ function CPU(memory) {
 					break;
 
 					//CMP
+
 				case 0xC9:
 					this.C = this.A >= this.memory[this.PC + 1] ? true : false;
 					this.Z = this.A === this.memory[this.PC + 1] ? true : false;
@@ -1575,6 +1598,7 @@ function CPU(memory) {
 					break;
 
 					//CPX
+
 				case 0xE0:
 					this.C = this.X >= this.memory[this.PC + 1] ? true : false;
 					this.Z = this.X === this.memory[this.PC + 1] ? true : false;
@@ -1610,6 +1634,7 @@ function CPU(memory) {
 					break;
 
 					//CPY
+
 				case 0xC0:
 					this.C = this.Y >= this.memory[this.PC + 1] ? true : false;
 					this.Z = this.Y === this.memory[this.PC + 1] ? true : false;
@@ -1645,6 +1670,7 @@ function CPU(memory) {
 					break;
 
 					//INC
+
 				case 0xE6:
 					this.Z = false;
 					this.N = false;
@@ -1710,6 +1736,7 @@ function CPU(memory) {
 					break;
 
 					//INX
+
 				case 0xE8:
 					this.Z = false;
 					this.N = false;
@@ -1725,6 +1752,7 @@ function CPU(memory) {
 					break;
 
 					//INY
+
 				case 0xC8:
 					this.Z = false;
 					this.N = false;
@@ -1740,6 +1768,7 @@ function CPU(memory) {
 					break;
 
 					//DEC
+
 				case 0xC6:
 					this.Z = false;
 					this.N = false;
@@ -1805,6 +1834,7 @@ function CPU(memory) {
 					break;
 
 					//DEX
+
 				case 0xCA:
 					this.Z = false;
 					this.N = false;
@@ -1820,6 +1850,7 @@ function CPU(memory) {
 					break;
 
 					//DEY
+
 				case 0x88:
 					this.Z = false;
 					this.N = false;
@@ -2215,6 +2246,7 @@ function CPU(memory) {
 					break;
 
 					//BCC
+
 				case 0x90:
 					this.PC += 2;
 					if(!this.C) {
@@ -2226,6 +2258,7 @@ function CPU(memory) {
 					break;
 
 					//BCS
+
 				case 0xB0:
 					this.PC += 2;
 					if(this.C) {
@@ -2237,6 +2270,7 @@ function CPU(memory) {
 					break;
 
 					//BEQ
+
 				case 0xF0:
 					this.PC += 2;
 					if(this.Z) {
@@ -2248,6 +2282,7 @@ function CPU(memory) {
 					break;
 
 					//BMI
+
 				case 0x30:
 					this.PC += 2;
 					if(this.N) {
@@ -2259,6 +2294,7 @@ function CPU(memory) {
 					break;
 
 					//BNE
+
 				case 0xD0:
 					this.PC += 2;
 					if(!this.Z) {
@@ -2270,6 +2306,7 @@ function CPU(memory) {
 					break;
 
 					//BPL
+
 				case 0x10:
 					this.PC += 2;
 					if(!this.N) {
@@ -2281,6 +2318,7 @@ function CPU(memory) {
 					break;
 
 					//BPL
+
 				case 0x50:
 					this.PC += 2;
 					if(!this.V) {
@@ -2292,6 +2330,7 @@ function CPU(memory) {
 					break;
 
 					//BVS
+
 				case 0x70:
 					this.PC += 2;
 					if(this.V) {
@@ -2303,6 +2342,7 @@ function CPU(memory) {
 					break;
 
 					//CLC
+
 				case 0x18:
 					this.C = false;
 					this.PC++;
@@ -2310,12 +2350,14 @@ function CPU(memory) {
 					break;
 
 					//CLD
+
 				case 0xD8:
 					this.PC++;
 					this.wait = 1;
 					break;
 
 					//CLI
+
 				case 0x58:
 					this.I = false;
 					this.PC++;
@@ -2323,6 +2365,7 @@ function CPU(memory) {
 					break;
 
 					//CLV
+
 				case 0xB8:
 					this.V = false;
 					this.PC++;
@@ -2330,6 +2373,7 @@ function CPU(memory) {
 					break;
 
 					//SEQ
+
 				case 0x38:
 					this.C = true;
 					this.PC++;
@@ -2337,12 +2381,14 @@ function CPU(memory) {
 					break;
 
 					//SED
+
 				case 0xF8:
 					this.PC++;
 					this.wait = 1;
 					break;
 
 					//SEI
+
 				case 0x78:
 					this.I = true;
 					this.PC++;
@@ -2350,6 +2396,7 @@ function CPU(memory) {
 					break;
 
 					//BRK
+
 				case 0x00:
 					var C = this.C ? 1 : 0;
 					var Z = this.Z ? 2 : 0 << 1;
@@ -2376,12 +2423,14 @@ function CPU(memory) {
 					break;
 
 					//NOP
+
 				case 0xEA
 				this.PC++;
 				this.wait = 1
 				break;
 
 				//RTI
+        
 				case 0x40:
 					var newStatus = this.memory[0x0100 + this.SP + 1];
 
@@ -2397,6 +2446,8 @@ function CPU(memory) {
 					this.SP += 3;
 
 					this.wait = 5;
+
+          break;
 			}
 		} else this.wait--;
 	}
