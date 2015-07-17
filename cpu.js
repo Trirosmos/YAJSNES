@@ -42,10 +42,48 @@ function CPU(memory) {
 		if(this.wait === 0) {
 			switch(this.memory[this.PC]) {
 
-				/* |    |||  ||||
-           |    |  | |
-           |___ |||  |   */
+			/*
+         _        _____
+        | |      |  __ \      /\
+        | |      | |  | |    /  \
+        | |      | |  | |   / /\ \
+        | |____  | |__| |  / ____ \
+        |______| |_____/  /_/    \_\
 
+        The LDA instruction loads the A register with a 8-bit value.
+        That value might be:
+         - [Immediate mode (0xA9)] The byte following the OP Code (i.e this.memory[this.PC + 1])
+         - [Zero Page Mode (0xA5)] The byte stored at address specified by the byte following the
+            OP Code (i.e this.memory[this.memory[this.PC + 1]])
+         - [Zero Page,X Mode [0xB5]] The byte stored at address specified by the byte following
+            the OP Code added to the value currently held by the X register (i.e
+            this.memory[(this.memory[this.PC + 1] + this.X) & 0xFF]). Note that this value
+            "wraps" around once it reaches 255 e.g: a byte value of 0xFF added to a X register
+            value of 0x15 will yield in the address 0x14.
+         - [Absolute Moed (0xAD)] The same as the Immediate mode, but instead of a 8-bit address, a
+            full 16-bit address is specified by the two bytes following the opcode (little endian).
+         - [Absolute,X Mode (0xBD)] The same as the Absolute mode, but the value currently held by the
+            X register is added to the address specified by the two bytes following the OP Code.
+            The address does not wrap around as in the Zero Page,X mode, what means that if the
+            sum of the lower 8 bits of the address with the value of the X register exceeds 255,
+            a new add operation will have to be executed as the 6502's ALU has a 8-bit bus, what
+            yields in the instruction taking an extre "oops" cycle to be executed.
+         - [Absolute,Y Mode (0xB9)] The same as the Absolute,X mode, except that the contents of the
+            Y register are added to the address fetched, instead of those from the X register.
+         - [Indirect,X Mode (0xA1)] The full 16-bit address of the byte that will be loaded into the
+            A register is fetched from the location specified by taking the byte following the OP
+            Code and adding it to the value currently held by the X register (with wrap around).
+            Note that the address is fetched in little endian formatting, therefore if the byte
+            following the OP Code is 0x20, the value in the X register is 0x04, the value in me-
+            mory location 0x24 is 0x80 and the value in memory location 0x25 is 0x20, the A regis-
+            ter will be loaded with the value held in memory location $2080.
+         - [Indirect,Y (0xB1)] A full 16-bit address is fetched from the memory address speci-
+            fied by the byte following the OP Code and the is added to the value currently held
+            by the Y register. There's no wrap around in this mode, which yield in the instruc-
+            tion taking an extra "oops" cycle if the sum of the lower 8 bits of the address and
+            the the value held by the Y register is greater thatn 255.                           */
+
+        //Immediate
 				case 0xA9:
 					this.Z = false;
 					this.N = false;
@@ -60,6 +98,7 @@ function CPU(memory) {
 
 					break;
 
+        //Zero-Page
 				case 0xA5:
 					this.Z = false;
 					this.N = false;
@@ -74,6 +113,7 @@ function CPU(memory) {
 
 					break;
 
+        //Zero-Page,x
 				case 0xB5:
 					this.Z = false;
 					this.N = false;
@@ -88,6 +128,7 @@ function CPU(memory) {
 
 					break;
 
+        //Absolute
 				case 0xAD:
 					this.Z = false;
 					this.N = false;
@@ -106,6 +147,7 @@ function CPU(memory) {
 
 					break;
 
+        //Absolute,X
 				case 0xBD:
 					this.Z = false;
 					this.N = false;
@@ -126,6 +168,7 @@ function CPU(memory) {
 
 					break;
 
+        //Absolute,Y
 				case 0xB9:
 					this.Z = false;
 					this.N = false;
@@ -146,6 +189,7 @@ function CPU(memory) {
 
 					break;
 
+        //Indirect X
 				case 0xA1:
 					this.Z = false;
 					this.N = false;
@@ -164,6 +208,7 @@ function CPU(memory) {
 
 					break;
 
+        //Indirect Y
 				case 0xB1:
 					this.Z = false;
 					this.N = false;
