@@ -1,0 +1,39 @@
+<html>
+<head>
+<title> NES Emulator </title>
+</head>
+
+<body>
+
+<script type = "text/javascript" src = "cpu.js">
+</script>
+
+<script type = "text/javascript">
+
+var mem = new ArrayBuffer(65536);
+
+var bla = new CPU(mem);
+bla.memory[0] = 0xA9;
+bla.memory[1] = 0x80;
+bla.memory[2] = 0x69;
+bla.memory[3] = 0x80;
+
+window.addEventListener("keydown",function(e){
+
+ if(e.keyCode === 69)
+ {
+   bla.execute();
+   console.log(bla);
+ }
+
+});
+
+
+
+
+
+</script>
+
+</body>
+
+</html>
