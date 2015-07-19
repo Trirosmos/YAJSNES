@@ -8,15 +8,43 @@
 <script type = "text/javascript" src = "cpu.js">
 </script>
 
+<input type="file" id = "rom"></input>
+
 <script type = "text/javascript">
+
+var Reader = new FileReader();
+
+var rom;
+
+var romFile = document.getElementById("rom");
+romFile.addEventListener("change",function(e){
+
+  Reader.readAsArrayBuffer(e.target.files[0]);
+  Reader.onload = function()
+  {
+    rom = new Uint8Array(Reader.result);
+    if(rom[0] << 32 + rom[1] << 16 + rom[2] << 8 + rom[3] === 79872)
+    {
+      console.log("This is indeed a NES rom!");
+      console.log("This rom has " + rom[4] + " PGR rom banks in it...");
+      console.log("And " + rom[5] + " CHR rom banks...");
+      console.log(rom[6] & 0b00000100 >> 2 === 1 ? "This rom has a trainer in it." : "This rom doens't have a trainer in it.");
+    }
+
+    else console.log("This doesn't seems to be a NES rom...");
+  }
+
+
+});
+
 
 var mem = new ArrayBuffer(65536);
 
 var bla = new CPU(mem);
-bla.memory[0] = 0xA9;
-bla.memory[1] = 0x80;
-bla.memory[2] = 0x69;
-bla.memory[3] = 0x80;
+bla.realMem[0] = 0xA9;
+bla.realMem[1] = 0x80;
+bla.realMem[2] = 0x85;
+bla.realMem[3] = 0xFF;
 
 window.addEventListener("keydown",function(e){
 
