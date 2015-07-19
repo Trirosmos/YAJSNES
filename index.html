@@ -8,9 +8,17 @@
 <script type = "text/javascript" src = "cpu.js">
 </script>
 
-<input type="file" id = "rom"></input>
-
 <script type = "text/javascript">
+
+var romFile = document.createElement("input");
+romFile.type = "file";
+document.body.appendChild(romFile);
+
+var canvas = document.createElement("canvas");
+canvas.width = 640;
+canvas.height = 480;
+var ctx = canvas.getContext("2d");
+document.body.appendChild(canvas);
 
 var Reader = new FileReader();
 
@@ -18,7 +26,6 @@ var rom = {};
 
 var bla;
 
-var romFile = document.getElementById("rom");
 romFile.addEventListener("change",function(e){
 
   Reader.readAsArrayBuffer(e.target.files[0]);
@@ -27,7 +34,6 @@ romFile.addEventListener("change",function(e){
     rawData = new Uint8Array(Reader.result);
     if(rawData[0] << 32 + rawData[1] << 16 + rawData[2] << 8 + rawData[3] === 79872)
     {
-      console.log("This is indeed a NES rom!");
       rom.pgrAmount = rawData[4];
       rom.chrAmount = rawData[5];
       rom.hasTrainer = (rawData[6] & 0b00000100) >> 2 === 1 ? true : false;
@@ -55,10 +61,12 @@ romFile.addEventListener("change",function(e){
 
 });
 
+var accessMem;
+
 var init = function()
 {
   var mem = new ArrayBuffer(65536);
-  var accessMem = new Uint8Array(mem);
+  accessMem = new Uint8Array(mem);
 
   for(x = 0; x < 16384; x++)
   {
@@ -74,17 +82,50 @@ var init = function()
     else accessMem[address] = value;
   }
 
-  console.log(accessMem);
-
   bla = new CPU(memory);
 
+  ctx.font = "30px Arial";
+  ctx.clearRect(0,0,640,480);
+  ctx.fillText(bla.A,50,50);
+  ctx.fillText(bla.X,100,50);
+  ctx.fillText(bla.Y,150,50);
+  ctx.fillText(bla.PC.toString(16),50,100);
+  ctx.fillText("C",50,150);
+  ctx.fillText("Z",100,150);
+  ctx.fillText("I",150,150);
+  ctx.fillText("B",200,150);
+  ctx.fillText("V",250,150);
+  ctx.fillText("N",300,150);
+  ctx.fillText(bla.C.toString()[0],50,200);
+  ctx.fillText(bla.Z.toString()[0],100,200);
+  ctx.fillText(bla.I.toString()[0],150,200);
+  ctx.fillText(bla.B.toString()[0],200,200);
+  ctx.fillText(bla.V.toString()[0],250,200);
+  ctx.fillText(bla.N.toString()[0],300,200);
 
   window.addEventListener("keydown",function(e){
 
    if(e.keyCode === 69)
    {
      bla.execute();
-     console.log(bla.PC);
+     ctx.font = "30px Arial";
+     ctx.clearRect(0,0,640,480);
+     ctx.fillText(bla.A,50,50);
+     ctx.fillText(bla.X,100,50);
+     ctx.fillText(bla.Y,150,50);
+     ctx.fillText(bla.PC.toString(16),50,100);
+     ctx.fillText("C",50,150);
+     ctx.fillText("Z",100,150);
+     ctx.fillText("I",150,150);
+     ctx.fillText("B",200,150);
+     ctx.fillText("V",250,150);
+     ctx.fillText("N",300,150);
+     ctx.fillText(bla.C.toString()[0],50,200);
+     ctx.fillText(bla.Z.toString()[0],100,200);
+     ctx.fillText(bla.I.toString()[0],150,200);
+     ctx.fillText(bla.B.toString()[0],200,200);
+     ctx.fillText(bla.V.toString()[0],250,200);
+     ctx.fillText(bla.N.toString()[0],300,200);
    }
 
   });

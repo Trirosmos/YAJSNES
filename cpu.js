@@ -2362,10 +2362,11 @@ function CPU(memory) {
 					//BPL
 
 				case 0x10:
-					this.PC += 2;
 					if(!this.N) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
+						console.log(this.PC);
 						this.PC += disp;
 					} else this.wait = 2;
 
@@ -2374,9 +2375,9 @@ function CPU(memory) {
 					//BPL
 
 				case 0x50:
-					this.PC += 2;
 					if(!this.V) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
@@ -2386,9 +2387,9 @@ function CPU(memory) {
 					//BVS
 
 				case 0x70:
-					this.PC += 2;
 					if(this.V) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
