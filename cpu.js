@@ -11,7 +11,7 @@ function CPU(memory) {
 	this.C = false;
 	this.Z = false;
 	this.I = true;
-	this.B = true;
+	this.B = false;
 	this.V = false;
 	this.N = false;
 
@@ -2302,9 +2302,9 @@ function CPU(memory) {
 					//BCC
 
 				case 0x90:
-					this.PC += 2;
 					if(!this.C) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
@@ -2314,9 +2314,9 @@ function CPU(memory) {
 					//BCS
 
 				case 0xB0:
-					this.PC += 2;
 					if(this.C) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
@@ -2326,9 +2326,9 @@ function CPU(memory) {
 					//BEQ
 
 				case 0xF0:
-					this.PC += 2;
 					if(this.Z) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
@@ -2338,9 +2338,9 @@ function CPU(memory) {
 					//BMI
 
 				case 0x30:
-					this.PC += 2;
 					if(this.N) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
@@ -2350,9 +2350,9 @@ function CPU(memory) {
 					//BNE
 
 				case 0xD0:
-					this.PC += 2;
 					if(!this.Z) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
+						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
 						this.PC += disp;
 					} else this.wait = 2;
@@ -2366,13 +2366,12 @@ function CPU(memory) {
 						var disp = this.memory(this.PC + 1) >= 0x80 ? this.memory(this.PC + 1) - 256 : this.memory(this.PC + 1);
 						this.PC += 2;
 						this.wait = this.PC & 0b0000000011111111 + this.memory(this.PC + 1) > 255 ? 4 : 3;
-						console.log(this.PC);
 						this.PC += disp;
 					} else this.wait = 2;
 
 					break;
 
-					//BPL
+					//BVC
 
 				case 0x50:
 					if(!this.V) {
