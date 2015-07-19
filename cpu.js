@@ -14,7 +14,6 @@ function CPU(memory) {
 		if(value === undefined)
 		{
 		 return this.realMem[address];
-		 console.log("Nada aqui!");
 		}
 		else this.realMem[address] = value;
 	}
