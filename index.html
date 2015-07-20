@@ -5,8 +5,9 @@
 
 <body>
 
-<script type = "text/javascript" src = "cpu.js">
-</script>
+<script type = "text/javascript" src = "cpu.js"></script>
+<script type = "text/javascript" src = "memory.js"></script>
+<script type = "text/javascript" src = "clock.js"></script>
 
 <script type = "text/javascript">
 
@@ -20,70 +21,9 @@ canvas.height = 480;
 var ctx = canvas.getContext("2d");
 document.body.appendChild(canvas);
 
-var Reader = new FileReader();
-
-var rom = {};
-
-var bla;
-
-romFile.addEventListener("change",function(e){
-
-  Reader.readAsArrayBuffer(e.target.files[0]);
-  Reader.onload = function()
-  {
-    rawData = new Uint8Array(Reader.result);
-    if(rawData[0] << 32 + rawData[1] << 16 + rawData[2] << 8 + rawData[3] === 79872)
-    {
-      rom.pgrAmount = rawData[4];
-      rom.chrAmount = rawData[5];
-      rom.hasTrainer = (rawData[6] & 0b00000100) >> 2 === 1 ? true : false;
-      rom.header = rawData.subarray(0,16);
-      rom.pgrRomOffset = rom.hasTrainer ? 528 : 16;
-      if(rom.hasTrainer) rom.trainer = rawData.subarray(16,528);
-      var pgrRaw = rawData.subarray(rom.pgrRomOffset,(rom.pgrRomOffset + 1) + (16384 * rom.pgrAmount));
-      rom.pgr16kBanks = [];
-      rom.pgr8kBanks = [];
-      for(x = 0;x < rom.pgrAmount; x++)
-      {
-        rom.pgr16kBanks[x] = pgrRaw.subarray(16384 * x, 16384 + 16384 * x);
-      }
-      for(x = 0;x < rom.pgrAmount * 2; x++)
-      {
-        rom.pgr8kBanks[x] = pgrRaw.subarray(8192 * x, 8192 + 8192 * x);
-      }
-      rom.rawData = rawData;
-      init();
-    }
-
-    else console.log("This doesn't seems to be a NES rom...");
-  }
-
-
-});
-
-var accessMem;
-
-var init = function()
+var rodar = function()
 {
-  var mem = new ArrayBuffer(65536);
-  accessMem = new Uint8Array(mem);
-
-  for(x = 0; x < 16384; x++)
-  {
-    accessMem[0xC000 + x] = rom.pgr16kBanks[rom.pgr16kBanks.length - 1][x];
-  }
-
-  var memory = function(address,value)
-  {
-    if(value === undefined)
-    {
-     return accessMem[address];
-    }
-    else accessMem[address] = value;
-  }
-
-  bla = new CPU(memory);
-
+  bla.execute();
   ctx.font = "30px Arial";
   ctx.clearRect(0,0,640,480);
   ctx.fillText(bla.A,50,50);
@@ -102,34 +42,48 @@ var init = function()
   ctx.fillText(bla.B.toString()[0],200,200);
   ctx.fillText(bla.V.toString()[0],250,200);
   ctx.fillText(bla.N.toString()[0],300,200);
+  window.requestAnimationFrame(rodar);
+}
 
-  window.addEventListener("keydown",function(e){
+var bla;
 
-   if(e.keyCode === 69)
-   {
-     bla.execute();
-     ctx.font = "30px Arial";
-     ctx.clearRect(0,0,640,480);
-     ctx.fillText(bla.A,50,50);
-     ctx.fillText(bla.X,100,50);
-     ctx.fillText(bla.Y,150,50);
-     ctx.fillText(bla.PC.toString(16),50,100);
-     ctx.fillText("C",50,150);
-     ctx.fillText("Z",100,150);
-     ctx.fillText("I",150,150);
-     ctx.fillText("B",200,150);
-     ctx.fillText("V",250,150);
-     ctx.fillText("N",300,150);
-     ctx.fillText(bla.C.toString()[0],50,200);
-     ctx.fillText(bla.Z.toString()[0],100,200);
-     ctx.fillText(bla.I.toString()[0],150,200);
-     ctx.fillText(bla.B.toString()[0],200,200);
-     ctx.fillText(bla.V.toString()[0],250,200);
-     ctx.fillText(bla.N.toString()[0],300,200);
-   }
+romFile.addEventListener("change",function(e){
+  memory = new Memory(e.target.files[0],function(mem){
+
+    bla = new CPU(mem.cpuRead);
+    rodar();
+
+    window.addEventListener("keydown",function(e){
+
+     if(e.keyCode === 69)
+     {
+       bla.execute();
+       ctx.font = "30px Arial";
+       ctx.clearRect(0,0,640,480);
+       ctx.fillText(bla.A,50,50);
+       ctx.fillText(bla.X,100,50);
+       ctx.fillText(bla.Y,150,50);
+       ctx.fillText(bla.PC.toString(16),50,100);
+       ctx.fillText("C",50,150);
+       ctx.fillText("Z",100,150);
+       ctx.fillText("I",150,150);
+       ctx.fillText("B",200,150);
+       ctx.fillText("V",250,150);
+       ctx.fillText("N",300,150);
+       ctx.fillText(bla.C.toString()[0],50,200);
+       ctx.fillText(bla.Z.toString()[0],100,200);
+       ctx.fillText(bla.I.toString()[0],150,200);
+       ctx.fillText(bla.B.toString()[0],200,200);
+       ctx.fillText(bla.V.toString()[0],250,200);
+       ctx.fillText(bla.N.toString()[0],300,200);
+     }
+
+    });
 
   });
-}
+});
+
+
 
 </script>
 
